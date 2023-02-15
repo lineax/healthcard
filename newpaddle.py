@@ -18,6 +18,7 @@ def OCR(img_path, ocr):
         res = result[idx]
         for line in res:
             words.append(line[1][0])
+            # print(line[1][0])
     
     return words
 
@@ -31,34 +32,56 @@ def OCR(img_path, ocr):
 #         pix.save(f"{folder}/page-{page.number}.png")
 
 def parsing(words_list):
+    is_name_detected = False
+    is_dob_detected = False
+    is_doine_detected = False
+    is_id_detected = False
+    fname="Not Detected"
+    lname="Not Detected"
+    id="Not Detected"
+    dob="Not Detected"
+    doi="Not Detected"
+    doe="Not Detected"
+    
+    
     for word in words_list:
-        if re.findall(r"^[0-9].*[a-zA-Z]$", word):
+        if re.findall(r"^[0-9].*[a-zA-Z]$", word) and not is_id_detected:
             id = word
+            is_id_detected = True
+            continue
+            
 
-        if word.isupper() == True:
+        if word.isupper() == True and not is_name_detected:
             if " " in word:
                 name = word
                 fname = name.split(" ")[0]
-                lname = name.split(" ")[1]
+                lname = name.split(" ")[-1]
+                is_name_detected = True
+                continue
+                
+        
 
         try:
-            if datetime.datetime.strptime(word, "%Y-%m-%d"):
+            if datetime.datetime.strptime(word, "%Y-%m-%d") and not is_dob_detected:
                 dob = word
+                is_dob_detected = True
+                continue
         except:
-            None
+            pass
 
-        if re.findall(r"^[0-9].*", word):
+        if re.findall(r"^[0-9].*", word) and not is_doine_detected:
             word = word.strip()
             full = word.replace("-", "")
             full = full.replace(".", "")
             if len(full) > 10:
                 doi = f"{full[0:4]}-{full[4:6]}-{full[6:8]}"
                 doe = f"{full[8:12]}-{full[12:14]}-{full[14:16]}"
-
+                is_doine_detected = True
+        print(fname, lname, id, dob, doi, doe)
     response_dict = {
         "First Name": fname,
         "Last Name": lname,
-        "Health Card ID:": id,
+        "Health Card ID": id,
         "DoB": dob,
         "DoI": doi,
         "Doe": doe

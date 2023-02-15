@@ -1,2 +1,3 @@
 requirements copy.txt
 images copy/*
+__pycache__/*
