@@ -45,6 +45,7 @@ def parsing(words_list):
     
     
     for word in words_list:
+        word=str(word)
         if re.findall(r"^[0-9].*[a-zA-Z]$", word) and not is_id_detected:
             id = word
             is_id_detected = True
@@ -56,12 +57,19 @@ def parsing(words_list):
                 name = word
                 fname = name.split(" ")[0]
                 lname = name.split(" ")[-1]
+                # print(name,fname,lname)
                 is_name_detected = True
                 continue
+            else:
+                fname=word
+                is_name_detected = True
+                continue
+                
                 
         
 
         try:
+            word=word.replace(".","-")
             if datetime.datetime.strptime(word, "%Y-%m-%d") and not is_dob_detected:
                 dob = word
                 is_dob_detected = True
@@ -77,7 +85,7 @@ def parsing(words_list):
                 doi = f"{full[0:4]}-{full[4:6]}-{full[6:8]}"
                 doe = f"{full[8:12]}-{full[12:14]}-{full[14:16]}"
                 is_doine_detected = True
-        print(fname, lname, id, dob, doi, doe)
+        # print(fname, lname, id, dob, doi, doe)
     response_dict = {
         "First Name": fname,
         "Last Name": lname,
