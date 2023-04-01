@@ -19,7 +19,7 @@ def OCR(img_path, ocr):
         for line in res:
             words.append(line[1][0])
             # print(line[1][0])
-    print(words)
+    # print(words)
     return words
 
 # def pdfconverter(fname, folder):
@@ -75,27 +75,64 @@ def parsing(words_list):
         except:
             pass
 
-        if re.findall(r"^[0-9].*", word) and not is_doine_detected:
-            list_of_dates.append(re.findall(r"^[0-9].*", word))
-            print(list_of_dates)
+        if re.findall(r'^[\d.-]+$', word):
+            list_of_dates.append(re.findall(r'^[\d.-]+$', word))
             continue
 
+    # print("dates: ",list_of_dates)
+    # print(len(list_of_dates))
+    
     if len(list_of_dates) == 2:
-        doi = str(list_of_dates[0]).strip('[]').strip("'")
-        print(doi)
-        doe = str(list_of_dates[1]).strip('[]').strip("'")
-        print(doe)
-        is_doine_detected = True
+        if is_dob_detected:
+            dates_without_chars=[]
+            for element in list_of_dates:
+                element=element[0]
+                dates_without_chars.append(int(str(element).replace("-","").replace(".","").replace("[","").replace("]","").replace("'","")))
+            sorted_dates = sorted(dates_without_chars)
+            # conveert each elem of list to str
+            sorted_dates = [str(i) for i in sorted_dates]
+            doi=f"{sorted_dates[0][0:4]}-{sorted_dates[0][4:6]}-{sorted_dates[0][6:8]}"
+            doe=f"{sorted_dates[1][0:4]}-{sorted_dates[1][4:6]}-{sorted_dates[1][6:8]}"
+            is_doine_detected = True
+        else:
+            dates_without_chars=[]
+            for element in list_of_dates:
+                element=element[0]
+                dates_without_chars.append(int(str(element).replace("-","").replace(".","").replace("[","").replace("]","").replace("'","")))
+            sorted_dates = sorted(dates_without_chars)
+            
+            dob=f"{str(sorted_dates[0])[0:4]}-{str(sorted_dates[0])[4:6]}-{str(sorted_dates[0])[6:8]}"
+            doi=f"{str(sorted_dates[1])[0:4]}-{str(sorted_dates[1])[4:6]}-{str(sorted_dates[1])[6:8]}"
+            doe=f"{str(sorted_dates[1])[8:12]}-{str(sorted_dates[1])[12:14]}-{str(sorted_dates[1])[14:16]}"
+            is_dob_detected = True
+            is_doine_detected = True
     elif len(list_of_dates) == 1: 
-        word = str(list_of_dates[0]).strip('[]').strip("'")
-        full = word.replace("-", "")
-        full = full.replace(".", "")
-        if len(full) > 10:
+        if is_dob_detected:
+            word = str(list_of_dates[0]).strip('[]').strip("'")
+            full = word.replace("-", "")
+            full = full.replace(".", "")
             doi = f"{full[0:4]}-{full[4:6]}-{full[6:8]}"
             doe = f"{full[8:12]}-{full[12:14]}-{full[14:16]}"
             is_doine_detected = True
-            
-        # print(fname, lname, id, dob, doi, doe)
+        else:
+            word = str(list_of_dates[0]).strip('[]').strip("'")
+            full = word.replace("-", "")
+            full = full.replace(".", "")
+            dob = f"{full[0:4]}-{full[4:6]}-{full[6:8]}"
+            is_dob_detected = True
+    elif len(list_of_dates) == 3:
+        dates_without_chars=[]
+        for element in list_of_dates:
+            element=element[0]
+            dates_without_chars.append(int(str(element).replace("-","").replace(".","").replace("[","").replace("]","").replace("'","")))
+        sorted_dates = sorted(dates_without_chars)
+        sorted_dates = [str(i) for i in sorted_dates]
+        dob=f"{sorted_dates[0][0:4]}-{sorted_dates[0][4:6]}-{sorted_dates[0][6:8]}"
+        doi=f"{sorted_dates[1][0:4]}-{sorted_dates[1][4:6]}-{sorted_dates[1][6:8]}"
+        doe=f"{sorted_dates[2][0:4]}-{sorted_dates[2][4:6]}-{sorted_dates[2][6:8]}"
+        is_doine_detected = True
+        is_dob_detected = True
+
     response_dict = {
         "First Name": fname,
         "Last Name": lname,
