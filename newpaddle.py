@@ -19,7 +19,7 @@ def OCR(img_path, ocr):
         for line in res:
             words.append(line[1][0])
             # print(line[1][0])
-    
+    print(words)
     return words
 
 # def pdfconverter(fname, folder):
@@ -42,6 +42,7 @@ def parsing(words_list):
     dob="Not Detected"
     doi="Not Detected"
     doe="Not Detected"
+    list_of_dates = []
     
     
     for word in words_list:
@@ -65,9 +66,6 @@ def parsing(words_list):
                 is_name_detected = True
                 continue
                 
-                
-        
-
         try:
             word=word.replace(".","-")
             if datetime.datetime.strptime(word, "%Y-%m-%d") and not is_dob_detected:
@@ -78,13 +76,25 @@ def parsing(words_list):
             pass
 
         if re.findall(r"^[0-9].*", word) and not is_doine_detected:
-            word = word.strip()
-            full = word.replace("-", "")
-            full = full.replace(".", "")
-            if len(full) > 10:
-                doi = f"{full[0:4]}-{full[4:6]}-{full[6:8]}"
-                doe = f"{full[8:12]}-{full[12:14]}-{full[14:16]}"
-                is_doine_detected = True
+            list_of_dates.append(re.findall(r"^[0-9].*", word))
+            print(list_of_dates)
+            continue
+
+    if len(list_of_dates) == 2:
+        doi = str(list_of_dates[0]).strip('[]').strip("'")
+        print(doi)
+        doe = str(list_of_dates[1]).strip('[]').strip("'")
+        print(doe)
+        is_doine_detected = True
+    elif len(list_of_dates) == 1: 
+        word = str(list_of_dates[0]).strip('[]').strip("'")
+        full = word.replace("-", "")
+        full = full.replace(".", "")
+        if len(full) > 10:
+            doi = f"{full[0:4]}-{full[4:6]}-{full[6:8]}"
+            doe = f"{full[8:12]}-{full[12:14]}-{full[14:16]}"
+            is_doine_detected = True
+            
         # print(fname, lname, id, dob, doi, doe)
     response_dict = {
         "First Name": fname,
